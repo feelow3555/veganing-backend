@@ -26,6 +26,9 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'com.h2database:h2' // 임시 DB (나중에 제거)
 
+	// hybernate
+	implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.9.0'
+
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
