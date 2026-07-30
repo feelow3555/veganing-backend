@@ -13,5 +13,5 @@ spring:
 
 jwt:
   secret: veganing-secret-key-must-be-at-least-256-bits-long-for-hs256
-  access-expiration: 900000
-  refresh-expiration: 604800000
+  access-token-expiry: 900000
+  refresh-token-expiry: 604800000
