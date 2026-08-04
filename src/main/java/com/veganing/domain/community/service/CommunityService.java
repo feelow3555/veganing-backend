@@ -9,6 +9,8 @@ import com.veganing.domain.community.entity.PostLike;
 import com.veganing.domain.community.repository.CommentRepository;
 import com.veganing.domain.community.repository.CommunityPostRepository;
 import com.veganing.domain.community.repository.PostLikeRepository;
+import com.veganing.global.error.CustomException;
+import com.veganing.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +34,7 @@ public class CommunityService {
     public PostResponse createPost(PostCreateRequest request, String email) {
         // 1. userId로 User 조회
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다"));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 2. Request + User 로 CommunityPost Entity 생성
         CommunityPost post = CommunityPost.builder()
@@ -87,7 +89,7 @@ public class CommunityService {
     public PostResponse getPost(Long postId) {
         // 1. postId로 CommunityPost 조회 (없으면 예외)
         CommunityPost communityPost = communityPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시물입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 2. PostResponse 로 변환해서 반환
         return PostResponse.builder()
@@ -109,11 +111,11 @@ public class CommunityService {
     public  PostResponse updatePost(Long postId, PostUpdateRequest request, String email) {
         // 1. postId로 CommunityPost 조회 (없으면 예외)
         CommunityPost communityPost = communityPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시물입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 2. 본인 글인지 확인 (userId 비교, 아니면 예외)
         if(!communityPost.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("수정 권한이 없는 게시물입니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
         // 3. 수정
@@ -139,11 +141,11 @@ public class CommunityService {
     public void deletePost(Long postId, String email) {
         // 1. postId로 CommunityPost 조회 (없으면 예외)
         CommunityPost communityPost = communityPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시물입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 2. 본인 글인지 확인 (userId 비교, 아니면 예외)
         if(!communityPost.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("삭제 권한이 없는 게시물입니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
         // 3. 삭제
@@ -155,11 +157,11 @@ public class CommunityService {
     public void toggleLike(Long postId, String email) {
         // 1. postId로 CommunityPost 조회 (없으면 예외)
         CommunityPost communityPost = communityPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시물입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 2. userId로 User 조회 (없으면 예외)
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자 입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         /*
         3. 이미 좋아요 눌렀는지 확인
@@ -185,11 +187,11 @@ public class CommunityService {
     public CommentResponse createComment(Long postId, CommentCreateRequest request, String email) {
         // 1. postId로 CommunityPost 조회 (없으면 예외)
         CommunityPost communityPost = communityPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시물입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 2. userId로 User 조회
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 3. Comment Entity 생성
         Comment comment = Comment.builder()
@@ -215,7 +217,7 @@ public class CommunityService {
     public List<CommentResponse> getComments(Long postId) {
         // 1. postId로 CommunityPost 조회 (없으면 예외)
         CommunityPost communityPost = communityPostRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 게시물입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 2. commentRepository.findAllByPostOrderByCreatedAtAsc(communityPost) 로 조회
         List<Comment> comments = commentRepository.findAllByPostOrderByCreatedAtAsc(communityPost);
@@ -237,11 +239,11 @@ public class CommunityService {
     public void deleteComment(Long commentId, String email) {
         // 1. commentId로 Comment 조회 (없으면 예외)
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         // 2. 본인 글인지 확인 (userId 비교, 아니면 예외)
         if(!comment.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("삭제 권한이 없는 게시물입니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
         // 3. 삭제

@@ -17,7 +17,7 @@ public class Challenge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // user 정보를 실제 쓸 때만 db 조회. / 성능 최적화
     @JoinColumn(name = "user_id")
@@ -29,6 +29,10 @@ public class Challenge {
     @Column(nullable = false)
     private Integer durationDays;
 
+    // Challenge.java 에 추가
+    @Column(length = 100)
+    private String purpose;
+
     @Column(nullable = false, length = 20)
     @Builder.Default
     private String status = "ONGOING";
@@ -38,11 +42,17 @@ public class Challenge {
     private int currentDay = 1;
 
     @Column(nullable = false)
-    private LocalDateTime staredAt;
+    private LocalDateTime startedAt;
 
     private LocalDateTime endedAt;
 
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    // 챌린지 포기 메서드
+    public void quit() {
+        this.status = "QUIT";
+        this.endedAt = LocalDateTime.now();
+    }
 }
