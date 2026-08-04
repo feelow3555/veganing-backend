@@ -41,8 +41,6 @@ public class AuthService {
                 .region(request.getRegion())
                 .build();
 
-        userRepository.save(user); // JPA 가 INSERT SQL 자동 생성해서 DB에 저장
-
         // 3. 토큰 발급 + 반환
         User savedUser = userRepository.save(user);
         String accessToken = jwtUtil.generateAccessToken(savedUser.getId(), savedUser.getEmail()); // jwtUtil 로 Access Token 생성
