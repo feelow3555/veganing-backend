@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/community/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/challenge/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/carbon/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
                         .anyRequest().authenticated()) // 위에서 설정한 것 외 나머지 모든 요청은 토큰 있어야 함
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // Spring Security 필터체인에 JwtFilter 를 등록
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
