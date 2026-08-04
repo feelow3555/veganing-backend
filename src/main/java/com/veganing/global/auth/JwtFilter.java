@@ -31,24 +31,30 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String token = resolveToken(request); // 토큰 꺼냄
+        String token = resolveToken(request); // 요청 헤더에서 토큰 꺼냄
 
-        // 토큰이 있는지(로그인, 회원가입은 토큰 필요 x), 유효성 검사
+        // 토큰이 존재하고 유효한 경우에만 인증 처리
+        // 로그인/회원가입 요청은 토큰이 없으므로 이 블록 건너뜀
         if(token != null && jwtUtil.isValid(token)) {
             Long userId = jwtUtil.getUserId(token);
             String email = jwtUtil.getEmail(token);
 
-            // Spring Security 한테 "이 사람 인증됐어"라고 알려주는 객체 (email, 비밀번호(토큰 방식이라 필요없어서 null), 이 사람 권한)
-            // Role_user -> Spring Security 는 권한 기반으로 접근을 제어해. 나중에 관리자 기능 만들면 ROLE_ADMIN 도 생김
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-            authenticationToken.setDetails(userId); // userId를 authentication 객체에 추가로 저장 -> 지금 요청한 사람 userId 가 뭐야? 할때 씀
+            // 토큰에서 꺼낸 userId + email 로 인증 객체 생성
+            // UserDetails 구현체로 감싸야 @AuthenticationPrincipal 로 Controller 에서 꺼낼 수 있음
+            CustomUserDetails userDetails = new CustomUserDetails(userId, email);
 
-            // SecurityContextHolder -> 현재 요청의 인증 정보 보관함 (여기에 이 유저가 인증된 유저다 저장해 두면 controller 에서 인증확인을 여기서 함)
+            // Spring Security 에 "이 사람 인증됐어" 라고 알려주는 객체
+            // principal 자리에 CustomUserDetails 를 넣어야 Controller 에서 타입 일치로 꺼낼 수 있음
+            // 비밀번호는 토큰 방식이라 불필요 → null
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+            // 현재 요청의 인증 정보 보관함에 저장
+            // 이후 Controller 에서 @AuthenticationPrincipal 로 꺼내 씀
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
 
-        // 필터가 여러개 일때 다른 필터로 엄기고 필터가 다 끝나면 controller 로 감
+        // 다음 필터로 넘김. 필터 체인이 끝나면 Controller 로 전달됨
         filterChain.doFilter(request, response);
     }
 
