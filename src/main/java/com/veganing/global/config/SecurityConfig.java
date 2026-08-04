@@ -28,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
@@ -49,6 +50,9 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Spring Security 한테 "세션 쓰지 마" 선언
                 .authorizeHttpRequests(auth -> auth // 경로별 인증 설정
                         .requestMatchers("/api/auth/**").permitAll() // 토큰 없어도 통과
+                        // 커뮤니티 조회는 비로그인도 가능
+                        .requestMatchers(HttpMethod.GET, "/api/community/posts").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/community/posts/**").permitAll()
                         .anyRequest().authenticated()) // 위에서 설정한 것 외 나머지 모든 요청은 토큰 있어야 함
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // Spring Security 필터체인에 JwtFilter 를 등록
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
