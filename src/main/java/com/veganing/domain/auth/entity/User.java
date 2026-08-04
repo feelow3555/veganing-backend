@@ -45,4 +45,9 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    // 포인트 추가 메서드
+    public void addPoints(Integer points) {
+        this.totalPoints += points;
+    }
 }
