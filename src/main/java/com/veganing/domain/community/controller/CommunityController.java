@@ -80,7 +80,7 @@ public class CommunityController {
         String email = userDetails.getEmail();
 
         communityService.deletePost(id, email);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok(ApiResponse.success("게시물 삭제 성공", null));
     }
 
     // 좋아요 토글
@@ -92,7 +92,7 @@ public class CommunityController {
         String email = userDetails.getEmail();
 
         communityService.toggleLike(id, email);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok(ApiResponse.success("좋아요 성공", null));
     }
 
     // 댓글 작성
@@ -125,7 +125,7 @@ public class CommunityController {
         String email = userDetails.getEmail();
 
         communityService.deleteComment(id, email);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok(ApiResponse.success("댓글 삭제 성공", null));
     }
 }
 
