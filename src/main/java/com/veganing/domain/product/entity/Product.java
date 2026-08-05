@@ -40,4 +40,11 @@ public class Product {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    // Product.java 하단에 추가
+    public void decreaseStock(Integer quantity) {
+        // 재고 차감 메서드
+        // Service 에서 재고 확인 후 호출됨
+        this.stock -= quantity;
+    }
 }
