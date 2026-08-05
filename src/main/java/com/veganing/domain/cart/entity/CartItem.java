@@ -36,4 +36,14 @@ public class CartItem {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    // 상품 추가 메서드
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
+    }
+
+    // 상품 업데이트
+    public void updateQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }
