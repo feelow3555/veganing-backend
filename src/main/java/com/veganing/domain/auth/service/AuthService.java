@@ -5,6 +5,8 @@ import com.veganing.domain.auth.dto.LoginRequest;
 import com.veganing.domain.auth.dto.SignupRequest;
 import com.veganing.domain.auth.entity.User;
 import com.veganing.domain.auth.repository.UserRepository;
+import com.veganing.domain.cart.entity.Cart;
+import com.veganing.domain.cart.repository.CartRepository;
 import com.veganing.global.auth.JwtUtil;
 import com.veganing.global.error.CustomException;
 import com.veganing.global.error.ErrorCode;
@@ -24,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화/검증
     private final JwtUtil jwtUtil; // 토큰 생성
     private final RedisTemplate<String, String> redisTemplate; // Refresh Token 저장
+    private final CartRepository cartRepository; // 회원가입 시 장바구니 생성
 
     // 회원가입 메서드
     @Transactional
@@ -43,6 +46,12 @@ public class AuthService {
 
         // 3. 토큰 발급 + 반환
         User savedUser = userRepository.save(user);
+
+        // 회원가입 시 Cart 자동 생성
+        cartRepository.save(Cart.builder()
+                .user(savedUser)
+                .build());
+
         String accessToken = jwtUtil.generateAccessToken(savedUser.getId(), savedUser.getEmail()); // jwtUtil 로 Access Token 생성
 
         return AuthResponse.of(accessToken); // DTO 에 토큰 담아서 반환하면 Controller 가 받아서 클라이언트한테 내려줌
