@@ -2,6 +2,7 @@ package com.veganing.domain.meal.controller;
 
 import com.veganing.domain.meal.dto.MealAnalyzeRequest;
 import com.veganing.domain.meal.dto.MealResponse;
+import com.veganing.domain.meal.dto.RecommendResponse;
 import com.veganing.domain.meal.service.MealService;
 import com.veganing.global.auth.CustomUserDetails;
 import com.veganing.global.common.ApiResponse;
@@ -61,5 +62,15 @@ public class MealController {
     ) {
         MealResponse response = mealService.getMeal(mealId, userDetails.getEmail());
         return ResponseEntity.ok(ApiResponse.success("식단 조회 성공", response));
+    }
+
+    // 5. RAG 기반 식단 추천
+// 최근 완료 식단 분석 결과 → Voyage AI 임베딩 → pgvector 유사 레시피 검색 → Claude 추천 생성
+    @GetMapping("/recommend")
+    public ResponseEntity<ApiResponse<RecommendResponse>> recommend(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        RecommendResponse response = mealService.recommend(userDetails.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("식단 추천 성공", response));
     }
 }
