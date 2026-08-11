@@ -1,6 +1,5 @@
 package com.veganing.domain.recipe.entity;
 
-import com.veganing.domain.auth.entity.User;
 import com.veganing.domain.community.entity.CommunityPost;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,12 +11,12 @@ import java.time.LocalDateTime;
 @Table(name = "recipes")
 @Getter
 @Builder
-@NoArgsConstructor (access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Recipe {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,4 +35,9 @@ public class Recipe {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    // embedding은 DB 레벨에서만 관리
+    // 저장: insertWithEmbedding() 네이티브 쿼리
+    // 검색: findSimilarRecipes() 네이티브 쿼리
+    // JPA 타입 변환 문제 완전 회피
 }
