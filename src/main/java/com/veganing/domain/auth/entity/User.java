@@ -1,5 +1,6 @@
 package com.veganing.domain.auth.entity;
 
+import com.veganing.domain.challenge.entity.ChallengeType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,6 +39,11 @@ public class User {
     @Column(nullable = false, length = 20)
     @Builder.Default
     private String level = "씨앗";
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    @Builder.Default
+    private ChallengeType veganLevel = ChallengeType.VEGAN; // 기본값 VEGAN
 
     @CreationTimestamp
     @Column(updatable = false)

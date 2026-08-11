@@ -1,5 +1,6 @@
 package com.veganing.domain.challenge.dto;
 
+import com.veganing.domain.challenge.entity.ChallengeType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 public class ChallengeResponse {
 
     private Long id;
-    private String type;
+    private ChallengeType type;
     private Integer durationDays;
     private String status;
     private Integer currentDay;

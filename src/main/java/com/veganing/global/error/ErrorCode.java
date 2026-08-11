@@ -27,7 +27,11 @@ public enum ErrorCode {
     // Order
     CART_EMPTY(HttpStatus.BAD_REQUEST, "장바구니가 비어있습니다"),
     OUT_OF_STOCK(HttpStatus.CONFLICT, "재고가 부족합니다"),
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다");
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다"),
+
+    // Meal
+    MEAL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 식단입니다"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다");
 
     private final HttpStatus status;
     private final String message;

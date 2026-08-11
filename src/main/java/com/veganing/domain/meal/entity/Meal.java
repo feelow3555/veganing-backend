@@ -42,7 +42,7 @@ public class Meal {
     private Challenge challenge;
 
     // S3에 업로드된 식단 사진 URL
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
 
     /**
@@ -81,6 +81,14 @@ public class Meal {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    // 사용자의 비건 단계에 맞는 식단인지 여부 (AI 판단)
+    private Boolean isVeganCompliant;
+
+    // 비건 단계 위반 항목 목록 (예: ["달걀 포함", "치즈 포함"])
+    @Type(JsonType.class)
+    @Column(columnDefinition = "jsonb")
+    private List<String> veganViolations;
+
     // ──────────────────────────────────────────
     // 비즈니스 메서드
     // ──────────────────────────────────────────
@@ -92,11 +100,15 @@ public class Meal {
     public void completeAnalysis(List<MealIngredient> ingredients,
                                  BigDecimal totalCarbon,
                                  Map<String, BigDecimal> nutrition,
-                                 String aiFeedback) {
+                                 String aiFeedback,
+                                 Boolean isVeganCompliant,
+                                 List<String> veganViolations) {
         this.ingredients = ingredients;
         this.totalCarbon = totalCarbon;
         this.nutrition = nutrition;
         this.aiFeedback = aiFeedback;
+        this.isVeganCompliant = isVeganCompliant;
+        this.veganViolations = veganViolations;
         this.status = MealStatus.DONE;
     }
 
