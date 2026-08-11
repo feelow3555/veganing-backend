@@ -1,27 +1,27 @@
 services:
 
   postgres:
-    image: postgres:16          # 공식 이미지 (클래스)
+    image: pgvector/pgvector:pg16   # pgvector 포함 이미지로 교체
     container_name: veganing-postgres
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${DB_PORT}:5432"       # 호스트:컨테이너
+      - "${DB_PORT}:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data  # 데이터 영구 보존
+      - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
 
   redis:
-    image: redis:7              # 공식 이미지 (클래스)
+    image: redis:7
     container_name: veganing-redis
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - redis-data:/data        # 데이터 영구 보존
+      - redis-data:/data
     restart: unless-stopped
 
 volumes:
-  postgres-data:    # 볼륨 선언 (static 변수)
+  postgres-data:
   redis-data:
