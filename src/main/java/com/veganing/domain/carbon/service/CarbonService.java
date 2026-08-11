@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class CarbonService {
 
     private final CarbonDailyRepository carbonDailyRepository;
+    private static final BigDecimal KOREAN_DAILY_AVG = new BigDecimal("5.5");
 
     // 전체 누적 통계 조회 (총 절감량, 총 식단 수, 일평균 절감량) 메서드
     public CarbonStatsResponse getStats(Long userId) {
@@ -50,17 +51,20 @@ public class CarbonService {
     // 오늘 절감량 + 식단 수 조회 (오늘 데이터 없으면 0으로 반환) 메서드
     public CarbonTodayResponse getToday(Long userId) {
         // 1. 오늘 날짜로 carbon_daily 조회
-        Optional<CarbonDaily> carbonDaily = carbonDailyRepository.findByUserIdAndCarbonDate(userId, LocalDate.now());
+        Optional<CarbonDaily> carbonDaily = carbonDailyRepository
+                .findByUserIdAndCarbonDate(userId, LocalDate.now());
 
         // 2. 데이터 없으면 0, 있으면 DTO 빌드 후 반환
         return carbonDaily
                 .map(c -> CarbonTodayResponse.builder()
                         .totalCarbon(c.getTotalCarbon())
                         .mealCount(c.getMealCount())
+                        .savedCarbon(KOREAN_DAILY_AVG.subtract(c.getTotalCarbon()))
                         .build())
                 .orElse(CarbonTodayResponse.builder()
                         .totalCarbon(BigDecimal.ZERO)
                         .mealCount(0)
+                        .savedCarbon(KOREAN_DAILY_AVG)
                         .build());
     }
 
