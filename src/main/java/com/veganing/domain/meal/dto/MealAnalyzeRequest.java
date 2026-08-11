@@ -1,11 +1,15 @@
 package com.veganing.domain.meal.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MealAnalyzeRequest {
 
     // 프론트가 S3에 직접 업로드한 이미지 URL
