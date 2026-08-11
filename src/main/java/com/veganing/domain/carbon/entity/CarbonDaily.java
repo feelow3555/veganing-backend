@@ -42,4 +42,10 @@ public class CarbonDaily {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    // 식단 추가될 때마다 탄소량 누적 + 식단 수 증가
+    public void addCarbon(BigDecimal carbon) {
+        this.totalCarbon = this.totalCarbon.add(carbon);
+        this.mealCount += 1;
+    }
 }

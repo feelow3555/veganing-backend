@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MealIngredient {
+public class MealIngredient implements Serializable {
 
     // 분석 당시 참조한 ingredient PK (FK가 아닌 참조용 ID)
     @JsonProperty("ingredient_id")
