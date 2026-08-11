@@ -23,8 +23,9 @@ public class Challenge {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Enumerated(EnumType.STRING) // Enum 순서 변경 시 데이터 보호
     @Column(nullable = false, length = 30)
-    private String type;
+    private ChallengeType type;
 
     @Column(nullable = false)
     private Integer durationDays;
