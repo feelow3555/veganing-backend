@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -84,10 +85,15 @@ public class Meal {
     // 사용자의 비건 단계에 맞는 식단인지 여부 (AI 판단)
     private Boolean isVeganCompliant;
 
-    // 비건 단계 위반 항목 목록 (예: ["달걀 포함", "치즈 포함"])
+    // 확실한 비건 위반 항목 (예: ["달걀 포함"])
     @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private List<String> veganViolations;
+    @Column(name = "confirmed_violations", columnDefinition = "jsonb")
+    private List<String> confirmedViolations;
+
+    // 의심 비건 위반 항목 (확신도 낮음)
+    @Type(JsonType.class)
+    @Column(name = "suspected_violations", columnDefinition = "jsonb")
+    private List<SuspectedViolation> suspectedViolations;
 
     // ──────────────────────────────────────────
     // 비즈니스 메서드
@@ -102,13 +108,15 @@ public class Meal {
                                  Map<String, BigDecimal> nutrition,
                                  String aiFeedback,
                                  Boolean isVeganCompliant,
-                                 List<String> veganViolations) {
+                                 List<String> confirmedViolations,
+                                 List<SuspectedViolation> suspectedViolations) {
         this.ingredients = ingredients;
         this.totalCarbon = totalCarbon;
         this.nutrition = nutrition;
         this.aiFeedback = aiFeedback;
         this.isVeganCompliant = isVeganCompliant;
-        this.veganViolations = veganViolations;
+        this.confirmedViolations = confirmedViolations;
+        this.suspectedViolations = suspectedViolations;
         this.status = MealStatus.DONE;
     }
 
@@ -117,5 +125,15 @@ public class Meal {
      */
     public void failAnalysis() {
         this.status = MealStatus.FAILED;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SuspectedViolation implements Serializable {
+        private String ingredient;
+        private String reason;
+        private Double confidence;
     }
 }
