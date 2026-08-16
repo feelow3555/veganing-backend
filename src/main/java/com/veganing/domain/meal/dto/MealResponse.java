@@ -22,7 +22,8 @@ public class MealResponse {
     private String aiFeedback;
     private MealStatus status;
     private Boolean isVeganCompliant;
-    private List<String> veganViolations;
+    private List<String> confirmedViolations;
+    private List<Meal.SuspectedViolation> suspectedViolations;
     private LocalDateTime createdAt;
 
     public static MealResponse from(Meal meal) {
@@ -35,7 +36,8 @@ public class MealResponse {
                 .aiFeedback(meal.getAiFeedback())
                 .status(meal.getStatus())
                 .isVeganCompliant(meal.getIsVeganCompliant())
-                .veganViolations(meal.getVeganViolations())
+                .confirmedViolations(meal.getConfirmedViolations())
+                .suspectedViolations(meal.getSuspectedViolations())
                 .createdAt(meal.getCreatedAt())
                 .build();
     }

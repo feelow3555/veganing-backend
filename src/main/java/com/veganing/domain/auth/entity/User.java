@@ -52,6 +52,11 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    // 닉네임 수정 메서드
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     // 포인트 추가 메서드
     public void addPoints(Integer points) {
         this.totalPoints += points;

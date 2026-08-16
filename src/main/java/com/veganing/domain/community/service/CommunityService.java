@@ -52,6 +52,7 @@ public class CommunityService {
         //4. PostResponse 변환
         return PostResponse.builder()
                 .id(savePost.getId())
+                .authorId(savePost.getUser().getId())
                 .title(savePost.getTitle())
                 .content(savePost.getContent())
                 .imageUrl(savePost.getImageUrl())
@@ -59,8 +60,8 @@ public class CommunityService {
                 .steps(savePost.getSteps())
                 .nickname(savePost.getUser().getNickname())
                 .likeCount(savePost.getLikeCount())
-                .commentCount(post.getCommentCount())
-                .createdAt(post.getCreatedAt())
+                .commentCount(savePost.getCommentCount())
+                .createdAt(savePost.getCreatedAt())
                 .build();
     }
 
@@ -72,6 +73,7 @@ public class CommunityService {
         // Page<CommunityPost> → Page<PostResponse> 로 변환해서 반환
         return posts.map(post -> PostResponse.builder()
                 .id(post.getId())
+                .authorId(post.getUser().getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
@@ -94,6 +96,7 @@ public class CommunityService {
         // 2. PostResponse 로 변환해서 반환
         return PostResponse.builder()
                 .id(communityPost.getId())
+                .authorId(communityPost.getUser().getId())
                 .title(communityPost.getTitle())
                 .content(communityPost.getContent())
                 .imageUrl(communityPost.getImageUrl())
@@ -124,6 +127,7 @@ public class CommunityService {
         // 4. PostResponse 로 변환해서 반환
         return PostResponse.builder()
                 .id(communityPost.getId())
+                .authorId(communityPost.getUser().getId())
                 .title(communityPost.getTitle())
                 .content(communityPost.getContent())
                 .imageUrl(communityPost.getImageUrl())
@@ -154,7 +158,7 @@ public class CommunityService {
 
     // 좋아요 토글 메서드
     @Transactional
-    public void toggleLike(Long postId, String email) {
+    public LikeResponse toggleLike(Long postId, String email) {
         // 1. postId로 CommunityPost 조회 (없으면 예외)
         CommunityPost communityPost = communityPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
@@ -175,11 +179,16 @@ public class CommunityService {
             communityPost.decrementLikeCount();
         } else {
             postLikeRepository.save(PostLike.builder()
-                            .post(communityPost)
-                            .user(user)
-                            .build());
+                    .post(communityPost)
+                    .user(user)
+                    .build());
             communityPost.incrementLikeCount();
         }
+
+        return LikeResponse.builder()
+                .likeCount(communityPost.getLikeCount())
+                .liked(!alreadyLiked)
+                .build();
     }
 
     // 댓글 작성 메서드

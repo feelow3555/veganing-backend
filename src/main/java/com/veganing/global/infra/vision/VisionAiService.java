@@ -80,48 +80,52 @@ public class VisionAiService {
     // 프롬프트 구성 (벤치마크 조건 B: 사진 + 음식정보 + 비건단계)
     private String buildPrompt(String foodName, String foodDescription, String veganLevel) {
         return String.format("""
-            음식 이름: %s
-            설명: %s
-            사용자 비건 단계: %s
-            
-            위 사진을 분석해서 아래 JSON 형식으로만 응답하세요. 다른 텍스트 없이 JSON만.
-            
+        음식 이름: %s
+        설명: %s
+        사용자 비건 단계: %s
+        
+        위 사진을 분석해서 아래 JSON 형식으로만 응답하세요. 다른 텍스트 없이 JSON만.
+        
+        {
+          "ingredients": [
+            {"name": "식재료명", "amount_g": 100}
+          ],
+          "is_vegan_compliant": true,
+          "confirmed_violations": ["확실한 위반 항목"],
+          "suspected_violations": [
             {
-              "ingredients": [
-                {"name": "식재료명", "amount_g": 100}
-              ],
-              "is_vegan_compliant": true,
-              "vegan_violations": ["위반 항목"],
-              "nutrition_feedback": "비건 관점 영양소 피드백 3~5문장"
+              "ingredient": "의심 재료명",
+              "reason": "의심 이유",
+              "confidence": 0.4
             }
-            
-                비건 단계별 판단 기준:
-                - FLEXITARIAN: 모든 식품 허용
-                - POLLO_PESCO: 적색육 포함 시 false
-                - PESCO: 적색육/백색육 포함 시 false
-                - POLLO: 적색육/어패류 포함 시 false
-                - LACTO_OVO: 적색육/백색육/어패류 포함 시 false
-                - LACTO: 적색육/백색육/어패류/난류 포함 시 false
-                - OVO: 적색육/백색육/어패류/유지류 포함 시 false
-                - VEGAN: 적색육/백색육/어패류/난류/유지류 포함 시 false
-                - FRUITARIAN: 과일류 외 모든 식품 포함 시 false
-            
-            nutrition_feedback은 반드시 한국어로.
-            vegan_violations는 위반 없으면 빈 배열 [].
-            """, foodName, foodDescription, veganLevel);
+          ],
+          "nutrition_feedback": "비건 관점 영양소 피드백 3~5문장"
+        }
+        
+        비건 단계별 판단 기준:
+        - FLEXITARIAN: 모든 식품 허용
+        - POLLO_PESCO: 적색육 포함 시 false
+        - PESCO: 적색육/백색육 포함 시 false
+        - POLLO: 적색육/어패류 포함 시 false
+        - LACTO_OVO: 적색육/백색육/어패류 포함 시 false
+        - LACTO: 적색육/백색육/어패류/난류 포함 시 false
+        - OVO: 적색육/백색육/어패류/유지류 포함 시 false
+        - VEGAN: 적색육/백색육/어패류/난류/유지류 포함 시 false
+        - FRUITARIAN: 과일류 외 모든 식품 포함 시 false
+        
+        confirmed_violations: 확실히 비건 위반인 재료 목록. 없으면 [].
+        suspected_violations: 비건 여부가 불확실한 재료 목록. confidence는 0.0~1.0 (높을수록 위반 가능성 높음). 없으면 [].
+        nutrition_feedback은 반드시 한국어로.
+        """, foodName, foodDescription, veganLevel);
     }
 
     // Claude 응답 파싱 → Map으로 반환
     private Map<String, Object> parseResponse(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            // Claude 응답 구조: content[0].text에 실제 텍스트 있음
             JsonNode root = objectMapper.readTree(response);
             String text = root.path("content").get(0).path("text").asText();
-
-            // 마크다운 코드펜스 제거 (벤치마크에서 확인된 전처리)
             text = text.replace("```json", "").replace("```", "").trim();
-
             return objectMapper.readValue(text, Map.class);
         } catch (Exception e) {
             throw new RuntimeException("Vision AI 응답 파싱 실패: " + e.getMessage());

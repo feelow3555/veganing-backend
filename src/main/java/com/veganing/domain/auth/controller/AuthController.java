@@ -4,13 +4,16 @@ package com.veganing.domain.auth.controller;
 
 import com.veganing.domain.auth.dto.AuthResponse;
 import com.veganing.domain.auth.dto.LoginRequest;
+import com.veganing.domain.auth.dto.ProfileUpdateRequest;
 import com.veganing.domain.auth.dto.SignupRequest;
 import com.veganing.domain.auth.service.AuthService;
+import com.veganing.global.auth.CustomUserDetails;
 import com.veganing.global.auth.JwtUtil;
 import com.veganing.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -54,5 +57,23 @@ public class AuthController {
         String email = jwtUtil.getEmail(refreshedToken); // Refresh Token 에서 email 꺼내기
         AuthResponse response = authService.refresh(email);
         return ResponseEntity.ok(ApiResponse.success("토큰 재발급 성공", response));
+    }
+
+    // 프로필 수정
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<AuthResponse>> updateProfile(
+            @Valid @RequestBody ProfileUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        AuthResponse response = authService.updateProfile(userDetails.getEmail(), request);
+        return ResponseEntity.ok(ApiResponse.success("프로필 수정 성공", response));
+    }
+
+    // 내 프로필 조회
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<AuthResponse>> getMe(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        AuthResponse response = authService.getMe(userDetails.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("프로필 조회 성공", response));
     }
 }

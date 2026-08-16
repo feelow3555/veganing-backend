@@ -50,13 +50,11 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Spring Security 한테 "세션 쓰지 마" 선언
                 .authorizeHttpRequests(auth -> auth // 경로별 인증 설정
                         .requestMatchers("/api/auth/**").permitAll() // 토큰 없어도 통과
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/webjars/**").permitAll() // Swagger 추가
+                        .requestMatchers(HttpMethod.GET, "/api/community/posts").permitAll()
                         // 커뮤니티 조회는 비로그인도 가능
                         .requestMatchers(HttpMethod.GET, "/api/community/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/community/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/challenge/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/carbon/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/cart/**").permitAll()
                         .anyRequest().authenticated()) // 위에서 설정한 것 외 나머지 모든 요청은 토큰 있어야 함
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // Spring Security 필터체인에 JwtFilter 를 등록
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
@@ -68,7 +66,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // 어떤 출처에서 오는 요청을 허용할지 나중에 배포하면 실제 도메인 추가
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://13.55.162.161:8080")); // 어떤 출처에서 오는 요청을 허용할지 나중에 배포하면 실제 도메인 추가
+        configuration.setAllowCredentials(false);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 어떤 HTTP 메서드를 허용할지
         configuration.setAllowedHeaders(List.of("*")); // 어떤 헤더를 허용할지
         configuration.setAllowCredentials(true); // 쿠키나 인증 헤더를 포함한 요청을 허용할지
