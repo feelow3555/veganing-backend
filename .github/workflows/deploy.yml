@@ -35,7 +35,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew bootJar -x test
 
-      # 5. EC2에 SSH로 jar 전송 + 재시작
+      # 5. 기존 서비스 중지 + jar 삭제
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
         with:
@@ -43,12 +43,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 기존 프로세스 종료
-            PID=$(lsof -t -i:8080) && kill -9 $PID || true
-
-            # 기존 jar 삭제
+            sudo systemctl stop veganing
             rm -f /home/ubuntu/veganing-*.jar
 
+      # 6. 새 jar 전송
       - name: Copy jar to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -59,6 +57,7 @@ jobs:
           target: "/home/ubuntu/"
           strip_components: 2
 
+      # 7. systemd로 서비스 시작
       - name: Start application
         uses: appleboy/ssh-action@v1
         with:
@@ -66,11 +65,5 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            nohup java \
-              -Duser.timezone=Asia/Seoul \
-              -jar /home/ubuntu/veganing-*.jar \
-              --spring.profiles.active=prod \
-              --spring.config.additional-location=file:/home/ubuntu/application-prod.yaml \
-              > /home/ubuntu/app.log 2>&1 &
-
+            sudo systemctl start veganing
             echo "배포 완료"
