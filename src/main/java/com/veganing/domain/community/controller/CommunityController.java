@@ -85,14 +85,14 @@ public class CommunityController {
 
     // 좋아요 토글
     @PostMapping("/posts/{id}/like")
-    public ResponseEntity<ApiResponse<Void>> toggleLike(
+    public ResponseEntity<ApiResponse<LikeResponse>> toggleLike(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         String email = userDetails.getEmail();
 
-        communityService.toggleLike(id, email);
-        return ResponseEntity.ok(ApiResponse.success("좋아요 성공", null));
+        LikeResponse response = communityService.toggleLike(id, email);
+        return ResponseEntity.ok(ApiResponse.success("좋아요 성공", response));
     }
 
     // 댓글 작성

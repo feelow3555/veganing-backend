@@ -71,13 +71,26 @@ public class MealAsyncService {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             // 5단계: 분석 결과 저장
+            List<Map<String, Object>> rawSuspected =
+                    (List<Map<String, Object>>) aiResult.get("suspected_violations");
+            List<Meal.SuspectedViolation> suspectedViolations = rawSuspected == null
+                    ? new ArrayList<>()
+                    : rawSuspected.stream()
+                    .map(m -> Meal.SuspectedViolation.builder()
+                            .ingredient((String) m.get("ingredient"))
+                            .reason((String) m.get("reason"))
+                            .confidence(((Number) m.get("confidence")).doubleValue())
+                            .build())
+                    .toList();
+
             meal.completeAnalysis(
                     mealIngredients,
                     totalCarbon,
                     nutrition,
                     (String) aiResult.get("nutrition_feedback"),
                     (Boolean) aiResult.get("is_vegan_compliant"),
-                    (List<String>) aiResult.get("vegan_violations")
+                    (List<String>) aiResult.get("confirmed_violations"),
+                    suspectedViolations
             );
 
             // 6단계: 비건 식단만 carbon_daily upsert

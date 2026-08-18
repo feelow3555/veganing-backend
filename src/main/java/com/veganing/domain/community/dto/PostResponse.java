@@ -12,6 +12,7 @@ import java.util.Map;
 public class PostResponse {
 
     private Long id;
+    private Long authorId;
     private String title;
     private String content;
     private String imageUrl;
