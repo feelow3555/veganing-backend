@@ -43,4 +43,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
                              @Param("embedding") String embedding);
 
     boolean existsByPostId(Long postId);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM recipes WHERE post_id = :postId AND embedding IS NOT NULL)", nativeQuery = true)
+    boolean existsByPostIdAndHasEmbedding(@Param("postId") Long postId);
 }

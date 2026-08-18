@@ -36,7 +36,7 @@ public class CommunityPost {
     private String content;
 
     // S3 이미지 URL (필수)
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     // 재료 목록 (필수)
