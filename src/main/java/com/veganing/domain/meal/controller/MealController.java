@@ -27,10 +27,10 @@ public class MealController {
     public ResponseEntity<ApiResponse<Map<String, String>>> getUploadUrl(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        // S3Service가 key 생성에 email 사용
         String presignedUrl = mealService.getUploadUrl(userDetails.getEmail());
+        String imageUrl = presignedUrl.split("\\?")[0]; // 쿼리스트링 제거
         return ResponseEntity.ok(ApiResponse.success("Presigned URL 발급 성공",
-                Map.of("uploadUrl", presignedUrl)));
+                Map.of("uploadUrl", presignedUrl, "imageUrl", imageUrl)));
     }
 
     // 2. 식단 분석 요청 → 즉시 202 반환

@@ -80,8 +80,10 @@ public class MealAsyncService {
                     (List<String>) aiResult.get("vegan_violations")
             );
 
-            // 6단계: carbon_daily upsert
-            updateCarbonDaily(meal, totalCarbon);
+            // 6단계: 비건 식단만 carbon_daily upsert
+            if (Boolean.TRUE.equals((Boolean) aiResult.get("is_vegan_compliant"))) {
+                updateCarbonDaily(meal, totalCarbon);
+            }
 
         } catch (Exception e) {
             log.error("식단 분석 실패 mealId={}: {}", mealId, e.getMessage());
@@ -94,7 +96,7 @@ public class MealAsyncService {
 
         for (Map<String, Object> raw : rawIngredients) {
             String name = (String) raw.get("name");
-            Integer amountG = (Integer) raw.get("amount_g");
+            Integer amountG = ((Number) raw.get("amount_g")).intValue();
             Ingredient ingredient = findIngredient(name);
 
             if (ingredient == null) {

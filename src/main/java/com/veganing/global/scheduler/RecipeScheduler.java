@@ -23,8 +23,9 @@ public class RecipeScheduler {
         log.info("레시피 인덱싱 스케줄러 시작");
 
         List<CommunityPost> topPosts = communityPostRepository
-                .findTopByLikeCount(PageRequest.of(0, 5));
+                .findTopByLikeCount(PageRequest.of(0, 20));
 
+        log.info("조회된 게시물 수: {}", topPosts.size());
         if (topPosts.isEmpty()) {
             log.info("인덱싱할 게시물 없음");
             return;

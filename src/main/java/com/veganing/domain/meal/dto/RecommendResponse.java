@@ -1,5 +1,7 @@
 package com.veganing.domain.meal.dto;
 
+import com.veganing.domain.meal.dto.RecipeReference;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,5 +16,5 @@ public class RecommendResponse {
 
     // 추천 근거로 사용된 레시피 제목 목록
     // 프론트에서 "이런 레시피를 참고했어요" 표시용
-    private List<String> referenceRecipes;
+    private List<RecipeReference> referenceRecipes;
 }

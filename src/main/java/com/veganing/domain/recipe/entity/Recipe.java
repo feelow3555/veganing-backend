@@ -32,6 +32,9 @@ public class Recipe {
     @Column
     private String s3Url;
 
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

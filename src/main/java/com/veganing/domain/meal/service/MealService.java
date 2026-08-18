@@ -6,6 +6,7 @@ import com.veganing.domain.challenge.entity.Challenge;
 import com.veganing.domain.challenge.repository.ChallengeRepository;
 import com.veganing.domain.meal.dto.MealAnalyzeRequest;
 import com.veganing.domain.meal.dto.MealResponse;
+import com.veganing.domain.meal.dto.RecipeReference;
 import com.veganing.domain.meal.dto.RecommendResponse;
 import com.veganing.domain.meal.entity.Meal;
 import com.veganing.domain.meal.enums.MealStatus;
@@ -44,7 +45,8 @@ public class MealService {
 
     // Presigned URL 발급 - 프론트가 S3에 직접 업로드할 URL
     public String getUploadUrl(String email) {
-        return s3Service.generatePresignedUrl(email);
+        String fileName = email + "/" + java.util.UUID.randomUUID() + ".jpg";
+        return s3Service.generatePresignedUrl(fileName);
     }
 
     // 식단 분석 요청 - ANALYZING row 즉시 생성 후 비동기 분석 시작
@@ -166,7 +168,18 @@ public class MealService {
 
         return RecommendResponse.builder()
                 .recommendation(recommendation)
-                .referenceRecipes(similarRecipes.stream().map(Recipe::getTitle).toList())
+                .referenceRecipes(similarRecipes.stream()
+                        .map(r -> RecipeReference.builder()
+                                .title(r.getTitle())
+                                .ingredients(r.getPost() != null && r.getPost().getIngredients() != null
+                                        ? r.getPost().getIngredients().stream()
+                                        .map(ing -> ing.get("name"))
+                                        .filter(name -> name != null)
+                                        .toList()
+                                        : List.of())
+                                .imageUrl(r.getImageUrl())
+                                .build())
+                        .toList())
                 .build();
     }
 }

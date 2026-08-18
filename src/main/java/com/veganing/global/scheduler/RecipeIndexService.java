@@ -21,7 +21,7 @@ public class RecipeIndexService {
     @Transactional
     public void indexSingleRecipe(CommunityPost post) {
         try {
-            boolean alreadyIndexed = recipeRepository.existsByPostId(post.getId());
+            boolean alreadyIndexed = recipeRepository.existsByPostIdAndHasEmbedding(post.getId());
             if (alreadyIndexed) {
                 log.info("이미 인덱싱된 게시물 skip: postId={}", post.getId());
                 return;
@@ -46,7 +46,7 @@ public class RecipeIndexService {
             log.info("레시피 인덱싱 완료: postId={}", post.getId());
 
         } catch (Exception e) {
-            log.error("레시피 인덱싱 실패: postId={}, error={}", post.getId(), e.getMessage());
+            log.error("레시피 인덱싱 실패: postId={}", post.getId(), e);
         }
     }
 }

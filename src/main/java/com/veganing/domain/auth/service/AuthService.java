@@ -2,6 +2,7 @@ package com.veganing.domain.auth.service;
 
 import com.veganing.domain.auth.dto.AuthResponse;
 import com.veganing.domain.auth.dto.LoginRequest;
+import com.veganing.domain.auth.dto.MeResponse;
 import com.veganing.domain.auth.dto.SignupRequest;
 import com.veganing.domain.auth.entity.User;
 import com.veganing.domain.auth.repository.UserRepository;
@@ -111,5 +112,19 @@ public class AuthService {
         String newAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail());
 
         return AuthResponse.of(newAccessToken);
+    }
+
+    // 내 프로필 조회
+    public MeResponse getMe(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return MeResponse.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .region(user.getRegion())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 }

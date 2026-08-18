@@ -40,7 +40,7 @@ public class CommunityController {
     // 게시물 목록 조회
     @GetMapping("/posts")
     public ResponseEntity<ApiResponse<Page<PostResponse>>> getPosts(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 10)
             Pageable pageable) {
 
         Page<PostResponse> posts = communityService.getPosts(pageable);
@@ -126,6 +126,16 @@ public class CommunityController {
 
         communityService.deleteComment(id, email);
         return ResponseEntity.ok(ApiResponse.success("댓글 삭제 성공", null));
+    }
+
+    // 랭킹 조회
+    @GetMapping("/ranking")
+    public ResponseEntity<ApiResponse<List<RankingResponse>>> getRanking(
+            @RequestParam(required = false) String region,
+            @RequestParam(defaultValue = "all") String period) {
+
+        List<RankingResponse> response = communityService.getRanking(region, period);
+        return ResponseEntity.ok(ApiResponse.success("랭킹 조회 성공", response));
     }
 }
 
