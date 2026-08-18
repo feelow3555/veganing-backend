@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Spring Security 한테 "세션 쓰지 마" 선언
                 .authorizeHttpRequests(auth -> auth // 경로별 인증 설정
                         .requestMatchers("/api/auth/**").permitAll() // 토큰 없어도 통과
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         // 커뮤니티 조회는 비로그인도 가능
                         .requestMatchers(HttpMethod.GET, "/api/community/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/community/posts/**").permitAll()
