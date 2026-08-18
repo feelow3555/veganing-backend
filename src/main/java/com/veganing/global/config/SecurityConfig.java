@@ -73,6 +73,10 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5173")); // 어떤 출처에서 오는 요청을 허용할지 나중에 배포하면 실제 도메인 추가
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 어떤 HTTP 메서드를 허용할지
         configuration.setAllowedHeaders(List.of("*")); // 어떤 헤더를 허용할지
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://veganing-frontend.vercel.app"
+        ));
         configuration.setAllowCredentials(true); // 쿠키나 인증 헤더를 포함한 요청을 허용할지
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
