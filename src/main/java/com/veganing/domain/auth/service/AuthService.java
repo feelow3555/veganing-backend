@@ -2,7 +2,7 @@ package com.veganing.domain.auth.service;
 
 import com.veganing.domain.auth.dto.AuthResponse;
 import com.veganing.domain.auth.dto.LoginRequest;
-import com.veganing.domain.auth.dto.ProfileUpdateRequest;
+import com.veganing.domain.auth.dto.MeResponse;
 import com.veganing.domain.auth.dto.SignupRequest;
 import com.veganing.domain.auth.entity.User;
 import com.veganing.domain.auth.repository.UserRepository;
@@ -114,28 +114,17 @@ public class AuthService {
         return AuthResponse.of(newAccessToken);
     }
 
-    // 프로필 수정
-    @Transactional
-    public AuthResponse updateProfile(String email, ProfileUpdateRequest request) {
+    // 내 프로필 조회
+    public MeResponse getMe(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        user.updateNickname(request.getNickname());
-        return AuthResponse.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .build();
-    }
 
-    // 내 프로필 조회
-    public AuthResponse getMe(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
-        return AuthResponse.builder()
+        return MeResponse.builder()
                 .userId(user.getId())
-                .accessToken(null)  // 프로필 조회엔 토큰 불필요
                 .email(user.getEmail())
                 .nickname(user.getNickname())
+                .region(user.getRegion())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }

@@ -41,7 +41,4 @@ out/
 
 ### Local Config ###
 **/application-local.yaml
-
-### server Config ###
-**/application-prod.yaml
 src/main/resources/application-prod.yaml

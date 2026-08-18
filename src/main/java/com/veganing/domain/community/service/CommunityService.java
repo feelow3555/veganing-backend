@@ -2,6 +2,7 @@ package com.veganing.domain.community.service;
 
 import com.veganing.domain.auth.entity.User;
 import com.veganing.domain.auth.repository.UserRepository;
+import com.veganing.domain.challenge.repository.PointHistoryRepository;
 import com.veganing.domain.community.dto.*;
 import com.veganing.domain.community.entity.Comment;
 import com.veganing.domain.community.entity.CommunityPost;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,7 @@ public class CommunityService {
     private final CommunityPostRepository communityPostRepository;
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     // 게시물 작성 메서드
     @Transactional
@@ -68,7 +72,7 @@ public class CommunityService {
     // 게시물 목록 조회 메서드
     public Page<PostResponse> getPosts(Pageable pageable) {
         // 1. communityPostRepository.findAllByOrderByCreatedAtDesc(pageable) 로 조회
-        Page<CommunityPost> posts = communityPostRepository.findAllByOrderByCreatedAtDesc(pageable);
+        Page<CommunityPost> posts = communityPostRepository.findAll(pageable);
 
         // Page<CommunityPost> → Page<PostResponse> 로 변환해서 반환
         return posts.map(post -> PostResponse.builder()
@@ -258,5 +262,33 @@ public class CommunityService {
         // 3. 삭제
         commentRepository.delete(comment);
         comment.getPost().decrementCommentCount();
+    }
+
+    public List<RankingResponse> getRanking(String region, String period) {
+        String regionParam = (region == null || region.isBlank()) ? null : region;
+
+        List<Object[]> rows;
+        if ("week".equals(period)) {
+            rows = pointHistoryRepository.findRankingByPeriod(
+                    regionParam, LocalDateTime.now().minusWeeks(1));
+        } else if ("month".equals(period)) {
+            rows = pointHistoryRepository.findRankingByPeriod(
+                    regionParam, LocalDateTime.now().minusMonths(1));
+        } else {
+            rows = pointHistoryRepository.findRankingAll(regionParam);
+        }
+
+        List<RankingResponse> result = new ArrayList<>();
+        for (int i = 0; i < rows.size(); i++) {
+            Object[] row = rows.get(i);
+            result.add(RankingResponse.builder()
+                    .userId((Long) row[0])
+                    .nickname((String) row[1])
+                    .region((String) row[2])
+                    .totalPoints(((Number) row[3]).intValue())
+                    .rank(i + 1)
+                    .build());
+        }
+        return result;
     }
 }

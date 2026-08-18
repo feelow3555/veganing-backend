@@ -91,41 +91,43 @@ public class VisionAiService {
             {"name": "식재료명", "amount_g": 100}
           ],
           "is_vegan_compliant": true,
-          "confirmed_violations": ["확실한 위반 항목"],
-          "suspected_violations": [
-            {
-              "ingredient": "의심 재료명",
-              "reason": "의심 이유",
-              "confidence": 0.4
-            }
-          ],
+          "vegan_violations": ["위반 항목"],
           "nutrition_feedback": "비건 관점 영양소 피드백 3~5문장"
         }
         
-        비건 단계별 판단 기준:
-        - FLEXITARIAN: 모든 식품 허용
-        - POLLO_PESCO: 적색육 포함 시 false
-        - PESCO: 적색육/백색육 포함 시 false
-        - POLLO: 적색육/어패류 포함 시 false
-        - LACTO_OVO: 적색육/백색육/어패류 포함 시 false
-        - LACTO: 적색육/백색육/어패류/난류 포함 시 false
-        - OVO: 적색육/백색육/어패류/유지류 포함 시 false
-        - VEGAN: 적색육/백색육/어패류/난류/유지류 포함 시 false
-        - FRUITARIAN: 과일류 외 모든 식품 포함 시 false
+        판단 원칙:
+        - 사진에서 100%% 확실하게 보이는 동물성 재료가 있을 때만 위반으로 판정.
+        - 빵가루, 소스, 드레싱 등 비건/논비건 둘 다 가능한 재료는 위반으로 보지 않음.
+        - 확실하지 않으면 is_vegan_compliant: true로 판정. 의심만으로 false 금지.
+        - vegan_violations는 사진에서 육안으로 명확히 확인된 것만 포함.
         
-        confirmed_violations: 확실히 비건 위반인 재료 목록. 없으면 [].
-        suspected_violations: 비건 여부가 불확실한 재료 목록. confidence는 0.0~1.0 (높을수록 위반 가능성 높음). 없으면 [].
+        비건 단계별 판단 기준 (사용자 단계: %s):
+        - FLEXITARIAN: 모든 식품 허용 → 항상 true
+        - POLLO_PESCO: 사진에 적색육(소/돼지)이 명확히 보일 때만 false
+        - PESCO: 사진에 적색육/백색육(닭)이 명확히 보일 때만 false
+        - POLLO: 사진에 적색육/어패류가 명확히 보일 때만 false
+        - LACTO_OVO: 사진에 적색육/백색육/어패류가 명확히 보일 때만 false
+        - LACTO: 사진에 적색육/백색육/어패류/달걀이 명확히 보일 때만 false
+        - OVO: 사진에 적색육/백색육/어패류/유제품이 명확히 보일 때만 false
+        - VEGAN: 사진에 적색육/백색육/어패류/달걀/유제품이 명확히 보일 때만 false
+        - FRUITARIAN: 사진에 과일류 외 재료가 명확히 보일 때만 false
+        
         nutrition_feedback은 반드시 한국어로.
-        """, foodName, foodDescription, veganLevel);
+        vegan_violations는 위반 없으면 빈 배열 [].
+        """, foodName, foodDescription, veganLevel, veganLevel);
     }
 
     // Claude 응답 파싱 → Map으로 반환
     private Map<String, Object> parseResponse(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            // Claude 응답 구조: content[0].text에 실제 텍스트 있음
             JsonNode root = objectMapper.readTree(response);
             String text = root.path("content").get(0).path("text").asText();
+
+            // 마크다운 코드펜스 제거 (벤치마크에서 확인된 전처리)
             text = text.replace("```json", "").replace("```", "").trim();
+
             return objectMapper.readValue(text, Map.class);
         } catch (Exception e) {
             throw new RuntimeException("Vision AI 응답 파싱 실패: " + e.getMessage());
