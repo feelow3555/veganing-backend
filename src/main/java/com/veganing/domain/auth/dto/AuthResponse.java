@@ -7,14 +7,16 @@ import lombok.Getter;
 @Builder
 public class AuthResponse {
     private String accessToken;
+    private String refreshToken;
     private String tokenType;
     private Long userId;
     private String email;
     private String nickname;
 
-    public static AuthResponse of(String accessToken) {
+    public static AuthResponse of(String accessToken, String refreshToken) {
         return AuthResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .build();
     }
