@@ -86,7 +86,7 @@ RAG 추천 데이터로 재활용
 | 항목 | 내용 |
 |------|------|
 | **개발 기간** | 2026.07 ~ 2026.08 (약 3~4주) |
-| **담당** | **Spring Boot 백엔드 전체 단독 설계 및 구현** |
+| **담당** | **Spring Boot 백엔드 전 영역 단독 설계 및 구현** |
 | **Backend** | Java 21 · Spring Boot 4.1 |
 | **Database** | PostgreSQL 16 · pgvector · Redis |
 | **AI** | Claude Sonnet 4 Vision · Voyage AI voyage-3-lite |
@@ -205,7 +205,7 @@ AWS Bedrock Knowledge Base와 같은 관리형 서비스를 사용하는 대신 
 
 ### 1. Vision AI — Claude Sonnet 4 선정
 
-식단 이미지에서 식재료를 안정적으로 추출할 Vision 모델을 선택하기 위해 동일한 식단 이미지로 3개 모델을 비교했습니다.
+식단 이미지에서 식재료를 안정적으로 추출할 Vision 모델을 선택하기 위해 동일한 입력 조건에서 3개 모델을 비교했습니다.
 
 | 항목 | 내용 |
 |------|------|
@@ -214,7 +214,7 @@ AWS Bedrock Knowledge Base와 같은 관리형 서비스를 사용하는 대신 
 | **결정** | **Claude Sonnet 4** |
 | **이유** | 테스트 결과 식재료 추출 정확도와 응답 안정성이 가장 우수 |
 
-> 유명한 모델을 바로 선택하기보다 동일한 입력을 기준으로 직접 비교한 뒤 결정했습니다.
+> 유명한 모델을 바로 선택하기보다 동일한 입력 조건에서 직접 비교한 뒤 선택했습니다.
 
 ---
 
@@ -229,9 +229,9 @@ RAG 구현 방식으로 관리형 서비스와 직접 구현 방식을 비교했
 
 최종적으로 **pgvector + Voyage AI voyage-3-lite**를 선택했습니다.
 
-기존 PostgreSQL에 확장만 추가해 별도의 Vector DB를 운영하지 않으면서, 임베딩 생성부터 코사인 유사도 검색까지 전체 흐름을 코드 레벨에서 직접 관리할 수 있다는 점을 우선했습니다.
+기존 PostgreSQL에 확장만 추가해 별도의 Vector DB를 운영하지 않으면서, 임베딩 생성부터 코사인 유사도 검색까지 전체 흐름을 코드 레벨에서 직접 제어할 수 있다는 점을 우선했습니다.
 
-임베딩 모델 역시 OpenAI `text-embedding-3-small`, AWS Bedrock Titan, Voyage AI `voyage-3-lite`를 비교한 뒤 Voyage AI를 선택했습니다.
+임베딩 모델 역시 OpenAI `text-embedding-3-small`, AWS Bedrock Titan, Voyage AI `voyage-3-lite`를 동일 조건에서 비교한 뒤 Voyage AI를 선택했습니다.
 
 ---
 
@@ -274,13 +274,13 @@ Product findProductById(Long id);
 **좋아요**
 
 - 충돌 빈도가 상대적으로 낮음
-- 응답 성능이 중요
+- 동시성 제어에 따른 DB Lock 비용을 최소화
 - `@Version` 기반 Optimistic Lock 적용
 
 **주문/재고**
 
-- 재고 정합성 손실 시 초과 판매 발생
-- 충돌 시 데이터 손실 비용이 큼
+- 재고 정합성이 깨질 경우 초과 판매 발생 가능
+- 정합성 보장이 응답 성능보다 중요
 - `PESSIMISTIC_WRITE` 기반 Pessimistic Lock 적용
 
 ---
@@ -321,7 +321,7 @@ Client ─────────→ S3
 
 대용량 이미지가 백엔드 서버를 직접 통과하지 않도록 S3 Presigned URL을 사용했습니다.
 
-이를 통해 백엔드의 이미지 처리에 필요한 메모리와 네트워크 사용을 줄였습니다.
+이를 통해 이미지 업로드 과정에서 백엔드 서버의 메모리 사용과 네트워크 부하를 줄였습니다.
 
 ---
 
@@ -381,7 +381,7 @@ Spring AOP가 Proxy 기반으로 동작하기 때문에 동일 클래스 내부 
 
 **교훈**
 
-`@Async`, `@Transactional`, `@Cacheable`과 같은 AOP 기반 기능을 사용할 때 **호출이 Proxy를 경유하는지 먼저 확인하는 기준**을 갖게 되었습니다.
+모든 데이터 접근을 JPA로 통일하기보다 ORM의 추상화가 적합하지 않은 영역에서는 Native Query를 사용하는 것이 더 명확할 수 있다는 점을 배웠습니다.
 
 ---
 
@@ -627,7 +627,7 @@ com.veganing
 | **DB Migration** | Flyway |
 | **Troubleshooting** | 81건 문서화 |
 
-단순히 API 기능을 구현하는 것을 넘어 **기술 선택의 근거, Spring Framework의 동작 원리, 데이터 정합성을 고려한 동시성 제어, AI 파이프라인 설계, 배포와 운영까지 백엔드 개발의 전체 흐름을 직접 경험**했습니다.
+기능 구현뿐 아니라 **기술 선택, Spring Framework의 동작 원리 이해, 데이터 정합성을 고려한 동시성 제어, AI 파이프라인 설계, 배포·운영까지 백엔드 개발 전 과정을 직접 설계하고 구현**했습니다.
 
 ---
 
