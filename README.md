@@ -92,7 +92,7 @@ RAG 추천 데이터로 재활용
 | **AI** | Claude Sonnet 4 Vision · Voyage AI voyage-3-lite |
 | **Infra** | AWS EC2 · RDS · S3 |
 | **DevOps** | GitHub Actions · Flyway · systemd |
-| **규모** | 15개 테이블 · 8개 주요 도메인 |
+| **규모** | 15개 테이블 · 9개 주요 도메인 |
 
 ### 주요 구현
 
@@ -381,7 +381,7 @@ Spring AOP가 Proxy 기반으로 동작하기 때문에 동일 클래스 내부 
 
 **교훈**
 
-모든 데이터 접근을 JPA로 통일하기보다 ORM의 추상화가 적합하지 않은 영역에서는 Native Query를 사용하는 것이 더 명확할 수 있다는 점을 배웠습니다.
+`@Async`와 `@Transactional`은 프록시를 통한 호출에서 적용되므로, 어노테이션 선언뿐 아니라 실제 호출 경로도 확인해야 한다는 점을 배웠습니다. 동일 클래스 내부 호출로 프록시를 우회하는 경우에는 해당 로직을 별도 Spring Bean으로 분리했습니다.
 
 ---
 
